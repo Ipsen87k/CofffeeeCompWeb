@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <div th:replace="~{fragments::header}"></div>
+    <title>Comp</title>
+    <link th:href="@{/css/compForm.css}" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <div class="top-nav">
+        <a th:href="@{/mode/changeDecomp}"  th:text="#{file.decompress}"></a>
+        <a th:href="@{/mode/changeComp}" th:text="#{file.compress}"></a>
+        <select id="compressionType">
+            <option value="zip">zip</option>
+            <option value="gzip">tar.gz</option>
+            <option value="bzip2">tar.bz2</option>
+            <option value="xz">tar.xz</option>
+            <!-- <option value="7z">7z</option> -->
+        </select>
+    </div>
+    <div class="container">
+        <form enctype="multipart/form-data">
+            <div class="upload-box">
+                <label for="fileInput" class="custom-file-upload" th:text="#{input.label}"></label>
+                <input type="file" id="fileInput" name="file_contents" multiple>
+            </div>
+            <table id="fileTable">
+                <thead>
+                    <tr>
+                        <th th:text="#{file.name}"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- アップロードされたファイル名がここに表示されます -->
+                </tbody>
+            </table>
+        </form>
+        <div class="compAction" id="restAction">
+            <button class="comp-button" id="compressButton" th:text="#{file.compress}"></button>
+        </div>
+    </div>
+
+    <script th:src="@{/js/mode.js}"></script>
+    <script th:src="@{/js/compForm.js}"></script>
+</body>

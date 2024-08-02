@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{fragments::header}"></div>
+    <title>Login</title>
+    <!-- <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css"> -->
+</head>
+<body>
+    <table class="table table-dark">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">LoginId</th>
+                <th scope="col">name</th>
+                <th scope="col">password</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="ac:${accounts}">
+                <td scope="row" th:text="${ac.id}"></td>
+                <td th:text="${ac.loginId}"></td>
+                <td th:text="${ac.name}"></td>
+                <td th:text="${ac.password}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p th:text="${session.comp}"></p>
+</body>

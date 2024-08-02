@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <div th:replace="~{fragments::header}"></div>
+    <title>Decomp</title>
+    <link th:href="@{/css/compForm.css}" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <div class="top-nav">
+        <a th:href="@{/mode/changeDecomp}"  th:text="#{file.decompress}"></a>
+        <a th:href="@{/mode/changeComp}" th:text="#{file.compress}"></a>
+    </div>
+    <div class="container">
+        <form enctype="multipart/form-data">
+            <div class="upload-box">
+                <label for="fileInput" class="custom-file-upload" th:text="#{input.label}"></label>
+                <input type="file" id="fileInput" name="file_contents">
+            </div>
+        </form>
+            <table id="fileTable">
+                <thead>
+                    <tr>
+                        <th th:text="#{file.name}"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- アップロードされたファイル名がここに表示されます -->
+                </tbody>
+            </table>
+        <div class="compAction" id="restAction">
+            <button class="comp-button" id="compressButton" th:text="#{file.decompress}"></button>
+        </div>
+    </div>
+
+    <script th:src="@{/js/mode.js}"></script>
+    <script th:src="@{/js/decompForm.js}"></script>
+</body>
