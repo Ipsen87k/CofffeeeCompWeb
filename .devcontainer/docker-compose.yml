@@ -1,52 +1,95 @@
-version: '3.8'
 
-volumes:
-  postgres-data:
 
-services:
-  app:
-    container_name: javadev
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      # NOTE: POSTGRES_DB/USER/PASSWORD should match values in db container
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_USER: postgres
-        POSTGRES_DB: cofffeeeComp
-        POSTGRES_HOSTNAME: postgresdb
-
+profiles:
+  dev:
     volumes:
-      - ../..:/workspaces:cached
-      
-    # Overrides default command so things don't shut down after the process ends.
-    command: sleep infinity
+      postgres-data:
 
-    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
-    network_mode: service:db
-    depends_on:
-      - db
+    services:
+      app:
+        container_name: javadev
+        build: 
+          context: .
+          dockerfile: DevJava.Dockerfile
+        environment:
+          # NOTE: POSTGRES_DB/USER/PASSWORD should match values in db container
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_USER: postgres
+            POSTGRES_DB: cofffeeeComp
+            POSTGRES_HOSTNAME: postgresdb
 
-    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
+        volumes:
+          - ../..:/workspaces:cached
+          
+        # Overrides default command so things don't shut down after the process ends.
+        command: sleep infinity
 
-  db:
-    container_name: postgresdb
-    build: 
-      context: .
-      dockerfile: Postgres.Dockerfile
-    
-    restart: always
-    volumes:
-      - ./postgres/init:/docker-entrypoint-initdb.d
-      - postgres-data:/var/lib/postgresql/data
-    ports:
-      - "54320:5432"
-    environment:
-      # NOTE: POSTGRES_DB/USER/PASSWORD should match values in app container
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_DB: cofffeeeComp
+        # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+        network_mode: service:db
+        depends_on:
+          - db
+
+        # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
+        # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+      db:
+        container_name: postgresdb
+        build: 
+          context: .
+          dockerfile: Postgres.Dockerfile
+        
+        restart: always
+        volumes:
+          - ./postgres/init:/docker-entrypoint-initdb.d
+          - postgres-data:/var/lib/postgresql/data
+        ports:
+          - "54320:5432"
+        environment:
+          # NOTE: POSTGRES_DB/USER/PASSWORD should match values in app container
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: cofffeeeComp
 
     # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
+prod:
+  volumes:
+    postgres-data:
+
+  services:
+    app:
+      container_name: javadev
+      build:
+        context: .
+        dockerfile: ProJava.Dockerfile
+      environment:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: cofffeeeComp
+          POSTGRES_HOSTNAME: postgresdb
+
+      volumes:
+        - ../.:/workspaces
+
+      command: mvn spring-boot:run &
+      ports:
+        - "8080:8080"
+      depends_on:
+        - db
+
+    db:
+      container_name: postgresdb
+      build:
+        context: .
+        dockerfile: Postgres.Dockerfile
+
+      restart: always
+      volumes:
+        - ./postgres/init:/docker-entrypoint-initdb.d
+        - postgres-data:/var/lib/postgresql/data
+      ports:
+        - "54320:5432"
+      environment:
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_DB: cofffeeeComp

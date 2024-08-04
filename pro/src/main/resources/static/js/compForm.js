@@ -3,6 +3,7 @@ let fileList = [];
 
 document.getElementById('fileInput').addEventListener('change', function() {
     const fileTableBody = document.querySelector('#fileTable tbody');
+    let i = 0;
 
     for (const file of this.files) {
         const row = document.createElement('tr');
@@ -15,8 +16,9 @@ document.getElementById('fileInput').addEventListener('change', function() {
         const deleteButton = document.createElement('button');
         deleteButton.textContent = '×';
         deleteButton.classList.add('delete-button');
+        deleteButton.value=i;
         deleteButton.addEventListener('click', function() {
-            fileList=fileList.filter(v=> v.name != row.innerText.slice(0,row.innerText.length-1));
+            delete fileList[deleteButton.value];
             row.remove(); // 行を削除
         });
         deleteButtonCell.appendChild(deleteButton);
@@ -25,14 +27,25 @@ document.getElementById('fileInput').addEventListener('change', function() {
         fileTableBody.appendChild(row);
 
         fileList.push(file);
+        i++;
     }
 });
 
 document.getElementById('compressButton').addEventListener('click',function(){
+    this.disabled = true;
+    const downloadBtnElem = document.getElementById('download_a');
+    if (downloadBtnElem){
+        downloadBtnElem.remove();
+    }
+
     const formData = new FormData();
     for(const file of fileList){
-        formData.append('fileContents',file);
+        if (file!==undefined){
+            formData.append('fileContents',file);
+        }
     }
+
+    fileList=[];
 
     fetch('/comp/upload',{
         method:'POST',
@@ -53,5 +66,8 @@ document.getElementById('compressButton').addEventListener('click',function(){
     })
     .catch(error=>{
         console.error('Error:',error);
+    })
+    .finally(()=>{
+        this.disabled = false;
     });
 });
