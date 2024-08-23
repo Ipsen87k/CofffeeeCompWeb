@@ -13,18 +13,21 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cofffeeecomp.pro.utils.FS;
 
 public class Gzip extends DecompBase implements Compressable{
-    private String ext = ".tar.gz";
+    private String targzExt = ".tar.gz";
+    private String gzExt= ".gz";
     private String outputPath = "";
 
     @Override
     public void compress(List<MultipartFile> fileLists, Path path) {
         if (fileLists.size()==1){
-            this.outputPath = path.toString() + ".gz";
+            var originalExt = "."+FileNameUtils.getExtension(fileLists.get(0).getOriginalFilename());
+            this.outputPath=path.toString()+originalExt+this.gzExt;
             try(var gcos = new GzipCompressorOutputStream(new BufferedOutputStream(new FileOutputStream(this.outputPath)))){
                 try(var bis = new BufferedInputStream(fileLists.get(0).getInputStream())){
                         var buffer = new byte[1024];
@@ -37,7 +40,7 @@ public class Gzip extends DecompBase implements Compressable{
                 e.printStackTrace();
             }
         }else{
-            this.outputPath = path.toString() + this.ext;
+            this.outputPath = path.toString() + this.targzExt;
             try(var taos = new TarArchiveOutputStream(new GzipCompressorOutputStream(new BufferedOutputStream(new FileOutputStream(this.outputPath))))){
                 for(var multiPartFile:fileLists){
     

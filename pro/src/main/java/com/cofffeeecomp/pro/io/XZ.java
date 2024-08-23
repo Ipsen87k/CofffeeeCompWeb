@@ -14,12 +14,14 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cofffeeecomp.pro.utils.FS;
 
 public class XZ extends DecompBase implements Compressable{
-    private String ext = ".tar.xz";
+    private String tarXzExt = ".tar.xz";
+    private String xzExt = ".xz";
     private String outputPath = "";
 
     @Override
@@ -57,27 +59,45 @@ public class XZ extends DecompBase implements Compressable{
 
     @Override
     public void compress(List<MultipartFile> fileLists, Path path) {
-        this.outputPath=path.toString()+this.ext;
-        try(var taos = new TarArchiveOutputStream(new XZCompressorOutputStream(new BufferedOutputStream(new FileOutputStream(this.outputPath))))){
-            for (var multiPartFile:fileLists){
-                var tempOutput = Paths.get(path.getParent().toString(), multiPartFile.getOriginalFilename());
-                multiPartFile.transferTo(tempOutput);
-                var file = tempOutput.toFile();
-                var entry = new TarArchiveEntry(file,file.getName());
-                taos.putArchiveEntry(entry);
+        if (fileLists.size()==1){
+            var originalExt = "."+FileNameUtils.getExtension(fileLists.get(0).getOriginalFilename());
+            this.outputPath=path.toString()+originalExt+this.xzExt;
 
-                try(var bis = new BufferedInputStream(multiPartFile.getInputStream())){
+            try(var xzos = new XZCompressorOutputStream(new BufferedOutputStream(new FileOutputStream(this.outputPath)))){
+                try(var bis = new BufferedInputStream(fileLists.get(0).getInputStream())){
                     var buffer = new byte[1024];
-                    var nRead = 0;
-                    while((nRead=bis.read(buffer)) !=-1){
-                        taos.write(buffer,0,nRead);
-                    }
+                    var nRead=0;
+                    while((nRead=bis.read(buffer))!=-1){
+                        xzos.write(buffer,0,nRead);
+                    }    
                 }
-                taos.closeArchiveEntry();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }else{
+            this.outputPath=path.toString()+this.tarXzExt;
+            try(var taos = new TarArchiveOutputStream(new XZCompressorOutputStream(new BufferedOutputStream(new FileOutputStream(this.outputPath))))){
+                for (var multiPartFile:fileLists){
+                    var tempOutput = Paths.get(path.getParent().toString(), multiPartFile.getOriginalFilename());
+                    multiPartFile.transferTo(tempOutput);
+                    var file = tempOutput.toFile();
+                    var entry = new TarArchiveEntry(file,file.getName());
+                    taos.putArchiveEntry(entry);
+
+                    try(var bis = new BufferedInputStream(multiPartFile.getInputStream())){
+                        var buffer = new byte[1024];
+                        var nRead = 0;
+                        while((nRead=bis.read(buffer)) !=-1){
+                            taos.write(buffer,0,nRead);
+                        }
+                    }
+                    taos.closeArchiveEntry();
+                }
+
+            }catch(IOException e){
+                e.printStackTrace();
             }
 
-        }catch(IOException e){
-            e.printStackTrace();
         }
     }
     
