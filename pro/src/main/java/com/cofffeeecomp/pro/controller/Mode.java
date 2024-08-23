@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -15,53 +16,34 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class Mode {
 
     @GetMapping("/zip")
-    public void zipMode(HttpSession session, HttpServletResponse res) {
+    public ResponseEntity<Object> zipMode(HttpSession session, HttpServletResponse res) {
         session.setAttribute("comp", "zip");
-        try {
-            res.sendRedirect("/comp");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/7z")
-    public void sevenZMode(HttpSession session, HttpServletResponse res) {
+    public ResponseEntity<Object> sevenZMode(HttpSession session, HttpServletResponse res) {
         session.setAttribute("comp", "7z");
-        try {
-            res.sendRedirect("/comp");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/gzip")
-    public void gzMode(HttpSession session, HttpServletResponse res) {
+    public ResponseEntity<Object> gzMode(HttpSession session, HttpServletResponse res) {
         session.setAttribute("comp", "gz");
-        try {
-            res.sendRedirect("/comp");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/bzip2")
-    public void bz2Mode(HttpSession session, HttpServletResponse res) {
+    public ResponseEntity<Object> bz2Mode(HttpSession session, HttpServletResponse res) {
         session.setAttribute("comp", "bz2");
-        try {
-            res.sendRedirect("/comp");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/xz")
-    public void xzMode(HttpSession session, HttpServletResponse res) {
+    public ResponseEntity<Object> xzMode(HttpSession session, HttpServletResponse res) {
         session.setAttribute("comp", "xz");
-        try {
-            res.sendRedirect("/comp");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return ResponseEntity.ok().build();
+
     }
 
     @GetMapping("/changeDecomp")
