@@ -23,27 +23,43 @@ public class Gzip extends DecompBase implements Compressable{
 
     @Override
     public void compress(List<MultipartFile> fileLists, Path path) {
-        this.outputPath = path.toString() + this.ext;
-        try(var taos = new TarArchiveOutputStream(new GzipCompressorOutputStream(new BufferedOutputStream(new FileOutputStream(this.outputPath))))){
-            for(var multiPartFile:fileLists){
-
-                var entry = new TarArchiveEntry(multiPartFile.getOriginalFilename());
-                entry.setSize(multiPartFile.getSize());
-                taos.putArchiveEntry(entry);
-
-                try(var bis = new BufferedInputStream(multiPartFile.getInputStream())){
-                    var buffer = new byte[1024];
-                    var nRead=0;
-                    while((nRead=bis.read(buffer))!=-1){
-                        taos.write(buffer,0,nRead);
-                    }
+        if (fileLists.size()==1){
+            this.outputPath = path.toString() + ".gz";
+            try(var gcos = new GzipCompressorOutputStream(new BufferedOutputStream(new FileOutputStream(this.outputPath)))){
+                try(var bis = new BufferedInputStream(fileLists.get(0).getInputStream())){
+                        var buffer = new byte[1024];
+                        var nRead=0;
+                        while((nRead=bis.read(buffer))!=-1){
+                            gcos.write(buffer,0,nRead);
+                        }
                 }
-                taos.closeArchiveEntry();
+            }catch(IOException e){
+                e.printStackTrace();
             }
-        taos.finish();
-        }catch(IOException e){
-            e.printStackTrace();
+        }else{
+            this.outputPath = path.toString() + this.ext;
+            try(var taos = new TarArchiveOutputStream(new GzipCompressorOutputStream(new BufferedOutputStream(new FileOutputStream(this.outputPath))))){
+                for(var multiPartFile:fileLists){
+    
+                    var entry = new TarArchiveEntry(multiPartFile.getOriginalFilename());
+                    entry.setSize(multiPartFile.getSize());
+                    taos.putArchiveEntry(entry);
+    
+                    try(var bis = new BufferedInputStream(multiPartFile.getInputStream())){
+                        var buffer = new byte[1024];
+                        var nRead=0;
+                        while((nRead=bis.read(buffer))!=-1){
+                            taos.write(buffer,0,nRead);
+                        }
+                    }
+                    taos.closeArchiveEntry();
+                }
+            taos.finish();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
         }
+
     }
 
     @Override
