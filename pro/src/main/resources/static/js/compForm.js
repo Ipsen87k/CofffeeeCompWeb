@@ -45,7 +45,7 @@ document.getElementById('compressButton').addEventListener('click',function(){
         }
     }
 
-    fileList=[];
+    //fileList=[];
 
     fetch('/comp/upload',{
         method:'POST',
